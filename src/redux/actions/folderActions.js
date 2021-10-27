@@ -16,12 +16,20 @@ const childrenClear = () => ({
     type: folderOperations.FOLDER_CLEAR_CHILDREN
 })
 
-const selectFolder = item =>({
+const selectFolder = item => ({
     type: folderOperations.FOLDER_SELECT, item
 })
 
+const folderEnter = item => ({
+    type: folderOperations.FOLDER_ENTER, item
+})
+
+const folderBack = () => ({
+    type: folderOperations.FOLDER_BACK
+})
+
 const folderActions = {
-    clear, rootId, setChildren, childrenClear,selectFolder
+    clear, rootId, setChildren, childrenClear, selectFolder, folderEnter, folderBack
 }
 
 export default folderActions

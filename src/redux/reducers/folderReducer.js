@@ -5,9 +5,10 @@ const INITIAL_STATE = {
 
     gdrive: 'sikorskieducation@gmail.com',
     rootFolderId: '',
-    selectedFolder:null,
+    selectedFolder: null,
     currentFolder: null,
-    currentFolderChildren: []
+    currentFolderChildren: [],
+    folderStack: []
 }
 
 const folderReducer = (state = INITIAL_STATE, action) => {
@@ -21,7 +22,7 @@ const folderReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 currentFolderChildren: action.item.children,
-                currentFolder: action.item.folderId
+                currentFolder: action.item.folderId,
             }
         case folderOperations.FOLDER_CLEAR_CHILDREN:
             return {
@@ -33,10 +34,21 @@ const folderReducer = (state = INITIAL_STATE, action) => {
                 state: INITIAL_STATE,
             }
         case folderOperations.FOLDER_SELECT:
-            return{
+            return {
                 ...state,
-                selectedFolder:action.item
+                selectedFolder: action.item
             }
+        case folderOperations.FOLDER_ENTER:
+            state.folderStack.push(action.item)
+            return {
+                ...state,
+            }
+        case folderOperations.FOLDER_BACK:
+            state.folderStack.pop()
+            return {
+                ...state,
+            }
+
         default:
             return state
     }

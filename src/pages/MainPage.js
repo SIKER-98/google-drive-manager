@@ -8,6 +8,7 @@ import {apiGetFolderRootId} from "../redux/thunk/getFolderRootId";
 import {apiGetFolderChildren} from "../redux/thunk/getFolderChildren";
 import {apiFetchFolder} from "../redux/thunk/fetchFolder";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import folderActions from "../redux/actions/folderActions";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -43,7 +44,7 @@ const useStyles = makeStyles(theme => {
 const MainPage = (props) => {
     const classes = useStyles()
     const {folderState} = props
-    const {getAllFolders, getChildren, getFolderRootId} = props
+    const {getAllFolders, getChildren, getFolderRootId, folderBack} = props
 
     useEffect(() => {
         getFolderRootId();
@@ -54,6 +55,15 @@ const MainPage = (props) => {
             getChildren(folderState.rootFolderId)
     }, [folderState.rootFolderId])
 
+    const arrowBackClick = () => {
+        folderBack()
+
+        if (folderState.folderStack.length > 0) {
+            getChildren(folderState.folderStack[folderState.folderStack.length - 1].id)
+        } else {
+            getChildren(folderState.rootFolderId)
+        }
+    }
 
     return (
         <Paper className={classes.paper}>
@@ -61,7 +71,9 @@ const MainPage = (props) => {
                 <Toolbar>
                     <Grid container spacing={2} alignItems={'center'}>
                         <Grid item>
-                            <IconButton>
+                            <IconButton disabled={folderState.folderStack.length === 0}
+                                        onClick={() => arrowBackClick()}
+                            >
                                 <ArrowBackIcon className={classes.block} color={'inherit'}/>
                             </IconButton>
                         </Grid>
@@ -112,6 +124,7 @@ const mapDispatchToProps = dispatch => ({
     getAllFolders: () => dispatch(apiFetchFolder()),
     getChildren: (folderId) => dispatch(apiGetFolderChildren(folderId)),
     getFolderRootId: () => dispatch(apiGetFolderRootId()),
+    folderBack: () => dispatch(folderActions.folderBack())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainPage)
