@@ -56,15 +56,19 @@ const folderReducer = (state = INITIAL_STATE, action) => {
                 selectedFolder: null
             }
         case folderOperations.FOLDER_CHANGE_COLOR:
-            const updatedFolderChildren = state.currentFolderChildren.map(child => {
-                if (child.id === action.item.folderId)
-                    child.folderColorRgb = action.item.newColor
-                return child
-            })
-
             return {
                 ...state,
-                currentFolderChildren: updatedFolderChildren
+                currentFolderChildren: state.currentFolderChildren.map(child => {
+                    if (child.id === action.item.folderId)
+                        child.folderColorRgb = action.item.newColor
+                    return child
+                })
+            }
+
+        case folderOperations.FOLDER_DELETE:
+            return {
+                ...state,
+                currentFolderChildren: state.currentFolderChildren.filter(child => child.id !== action.item)
             }
 
         default:

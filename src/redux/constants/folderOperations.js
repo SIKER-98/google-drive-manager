@@ -8,6 +8,7 @@ const FOLDER_ENTER = 'FOLDER_ENTER';
 const FOLDER_BACK = 'FOLDER_BACK'
 const FOLDER_SELECT_CLEAR = 'FOLDER_SELECT_CLEAR'
 const FOLDER_CHANGE_COLOR = 'FOLDER_CHANGE_COLOR'
+const FOLDER_DELETE='FOLDER_DELETE'
 
 const folderOperations = {
     FOLDER_CLEAR,
@@ -18,7 +19,8 @@ const folderOperations = {
     FOLDER_ENTER,
     FOLDER_BACK,
     FOLDER_SELECT_CLEAR,
-    FOLDER_CHANGE_COLOR
+    FOLDER_CHANGE_COLOR,
+    FOLDER_DELETE
 }
 
 export default folderOperations

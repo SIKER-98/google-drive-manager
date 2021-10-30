@@ -36,9 +36,14 @@ const folderChangeColor = item => ({
     type: folderOperations.FOLDER_CHANGE_COLOR, item
 })
 
+const folderDelete = item => ({
+    type: folderOperations.FOLDER_DELETE, item
+})
+
 const folderActions = {
     clear, rootId, setChildren, childrenClear, selectFolder, folderEnter, folderBack, folderSelectClear,
-    folderChangeColor
+    folderChangeColor, folderDelete
 }
+
 
 export default folderActions

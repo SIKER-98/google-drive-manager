@@ -15,6 +15,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import MuiAlert from "@mui/material/Alert";
 import {apiPutFolderChangeColor} from "../redux/thunk/putFolderChangeColor";
 import {connect} from "react-redux";
+import AlertSnackbar from "./AlertSnackbar";
 
 const useStyles = makeStyles(theme => (
     {
@@ -78,7 +79,9 @@ const ChangeColorDialog = (props) => {
         setOpen(false)
     }
 
+
     return (
+
         <>
             <Button onClick={handleClickOpen}
                     fullWidth
@@ -115,21 +118,20 @@ const ChangeColorDialog = (props) => {
                 </DialogContent>
             </Dialog>
 
-            <Snackbar open={snackOpen}
-                      autoHideDuration={2000}
-                      onClose={handleSnackClose}
-                      anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
-            >
-                <Alert onClose={handleClose} severity={alertType}>
-                    {alert}
-                </Alert>
-            </Snackbar>
+            {alert !== '' ?
+                <AlertSnackbar open={true}
+                               alertType={alertType}
+                               alert={alert}
+                /> : null
+            }
         </>
     )
 }
 
-const mapDispatchToProps = dispatch => ({
-    putFolderChangeColor: (item) => dispatch(apiPutFolderChangeColor(item))
-})
+const mapDispatchToProps = dispatch => (
+    {
+        putFolderChangeColor: (item) => dispatch(apiPutFolderChangeColor(item))
+    }
+)
 
 export default connect(null, mapDispatchToProps)(ChangeColorDialog)

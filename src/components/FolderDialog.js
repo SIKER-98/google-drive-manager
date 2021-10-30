@@ -13,6 +13,10 @@ import {
 } from "@material-ui/core";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import ChangeColorDialog from "./ChangeColorDialog";
+import {apiDeleteFolder} from "../redux/thunk/deleteFolder";
+import {connect} from "react-redux";
+import {apiGetFolderChildren} from "../redux/thunk/getFolderChildren";
+import AlertSnackbar from "./AlertSnackbar";
 
 const useStyles = makeStyles(theme => (
     {
@@ -30,9 +34,14 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const FolderDialog = (props) => {
     const [open, setOpen] = useState(false)
+    const [alert, setAlert] = useState('')
+    const [alertType, setAlertType] = useState('')
+
 
     const classes = useStyles()
     const {data} = props
+    const {deleteFolder, folderState} = props
+
 
     const handleClickOpen = () => {
         setOpen(true)
@@ -99,6 +108,18 @@ const FolderDialog = (props) => {
         })
     }
 
+    const folderDelete = () => {
+        deleteFolder(data.id)
+
+        if (folderState.currentFolderChildren.findIndex(child => child.id = data.id) >= 0) {
+            setAlert('Deleted folder')
+            setAlertType('success')
+        } else {
+            setAlert('Something went wrong')
+            setAlertType('error')
+        }
+    }
+
     return (
         <>
             <IconButton aria-label={'actions'} onClick={handleClickOpen}>
@@ -149,7 +170,7 @@ const FolderDialog = (props) => {
                         >
                             Share
                         </Button>
-                        <Button onClick={handleClose}
+                        <Button onClick={folderDelete}
                                 fullWidth
                                 color={'secondary'}
                                 variant={'contained'}
@@ -159,9 +180,25 @@ const FolderDialog = (props) => {
                         </Button>
                     </DialogContent>
                 </>
+
+                {alert !== '' ?
+                    <AlertSnackbar open={true}
+                                   alertType={alertType}
+                                   alert={alert}
+                    /> : null
+                }
             </Dialog>
         </>
     )
 }
 
-export default FolderDialog
+const mapStateToProps = state => ({
+    folderState: state.folderReducer,
+})
+
+const mapDispatchToProps = dispatch => ({
+    deleteFolder: folderId => dispatch(apiDeleteFolder(folderId)),
+})
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(FolderDialog)
