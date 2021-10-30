@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => {
 const MainPage = (props) => {
     const classes = useStyles()
     const {folderState} = props
-    const {getAllFolders, getChildren, getFolderRootId, folderBack} = props
+    const {getAllFolders, getChildren, getFolderRootId, folderBack,folderSelectClear} = props
 
     useEffect(() => {
         getFolderRootId();
@@ -66,12 +66,13 @@ const MainPage = (props) => {
     }
 
     return (
-        <Paper className={classes.paper}>
+        <Paper className={classes.paper}
+        >
             <AppBar className={classes.searchBar} position={'sticky'} color={'default'} elevation={0}>
                 <Toolbar>
                     <Grid container spacing={2} alignItems={'center'}>
                         <Grid item>
-                            <IconButton disabled={folderState.folderStack.length === 0}
+                            <IconButton disabled={folderState?.folderStack?.length === 0}
                                         onClick={() => arrowBackClick()}
                             >
                                 <ArrowBackIcon className={classes.block} color={'inherit'}/>
@@ -124,7 +125,8 @@ const mapDispatchToProps = dispatch => ({
     getAllFolders: () => dispatch(apiFetchFolder()),
     getChildren: (folderId) => dispatch(apiGetFolderChildren(folderId)),
     getFolderRootId: () => dispatch(apiGetFolderRootId()),
-    folderBack: () => dispatch(folderActions.folderBack())
+    folderBack: () => dispatch(folderActions.folderBack()),
+    folderSelectClear: () =>dispatch(folderActions.folderSelectClear())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainPage)

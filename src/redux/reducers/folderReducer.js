@@ -31,22 +31,40 @@ const folderReducer = (state = INITIAL_STATE, action) => {
             }
         case folderOperations.FOLDER_CLEAR:
             return {
-                state: INITIAL_STATE,
+                ...INITIAL_STATE,
             }
         case folderOperations.FOLDER_SELECT:
             return {
                 ...state,
                 selectedFolder: action.item
             }
+        case folderOperations.FOLDER_SELECT_CLEAR:
+            return {
+                ...state,
+                selectedFolder: null,
+            }
         case folderOperations.FOLDER_ENTER:
             state.folderStack.push(action.item)
             return {
                 ...state,
+                selectedFolder: null
             }
         case folderOperations.FOLDER_BACK:
             state.folderStack.pop()
             return {
                 ...state,
+                selectedFolder: null
+            }
+        case folderOperations.FOLDER_CHANGE_COLOR:
+            const updatedFolderChildren = state.currentFolderChildren.map(child => {
+                if (child.id === action.item.folderId)
+                    child.folderColorRgb = action.item.newColor
+                return child
+            })
+
+            return {
+                ...state,
+                currentFolderChildren: updatedFolderChildren
             }
 
         default:

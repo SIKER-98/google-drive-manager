@@ -28,8 +28,17 @@ const folderBack = () => ({
     type: folderOperations.FOLDER_BACK
 })
 
+const folderSelectClear = () => ({
+    type: folderOperations.FOLDER_SELECT_CLEAR
+})
+
+const folderChangeColor = item => ({
+    type: folderOperations.FOLDER_CHANGE_COLOR, item
+})
+
 const folderActions = {
-    clear, rootId, setChildren, childrenClear, selectFolder, folderEnter, folderBack
+    clear, rootId, setChildren, childrenClear, selectFolder, folderEnter, folderBack, folderSelectClear,
+    folderChangeColor
 }
 
 export default folderActions

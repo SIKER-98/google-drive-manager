@@ -8,6 +8,7 @@ import {pink} from "@material-ui/core/colors";
 import folderActions from "../redux/actions/folderActions";
 import {connect} from "react-redux";
 import {apiGetFolderChildren} from "../redux/thunk/getFolderChildren";
+import FolderDialog from "./FolderDialog";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -48,31 +49,37 @@ const Element = (props) => {
     const {folderReducer, selectFolder, getFolderChildren, folderEnter} = props
 
     const folderClick = () => {
-        if (folderReducer.selectedFolder?.id !== folder.id) {
-            selectFolder(folder)
-            return
-        }
+        // if (folderReducer.selectedFolder?.id !== folder.id) {
+        //     selectFolder(folder)
+        //     return
+        // }
 
         folderEnter(folder)
         getFolderChildren(folder.id)
     }
 
+    const fileNameReduction = (name) => (
+        name.length < 20 ? name : name.substring(0, 20) + '...'
+    )
+
+
     return (
         <Card className={clsx(classes.root, folder.id === folderReducer.selectedFolder?.id ? classes.selectedItem : '')}
               variant={'outlined'}
-              onClick={folderClick}
         >
             <CardHeader
                 avatar={
-                    <FolderIcon className={classes.icon} style={{color: folder.folderColorRgb}}/>
+                    <IconButton onClick={folderClick}>
+                        <FolderIcon className={classes.icon} style={{color: folder.folderColorRgb}}/>
+                    </IconButton>
                 }
                 action={
-                    <MoreVertIcon/>
+                    <FolderDialog data={folder}/>
                 }
             />
             <CardContent>
                 <Typography>
-                    {folder.name}
+                    {fileNameReduction(folder.name)}
                 </Typography>
             </CardContent>
         </Card>

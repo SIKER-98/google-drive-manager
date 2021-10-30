@@ -6,6 +6,8 @@ const FOLDER_SELECT = 'FOLDER_SELECT';
 
 const FOLDER_ENTER = 'FOLDER_ENTER';
 const FOLDER_BACK = 'FOLDER_BACK'
+const FOLDER_SELECT_CLEAR = 'FOLDER_SELECT_CLEAR'
+const FOLDER_CHANGE_COLOR = 'FOLDER_CHANGE_COLOR'
 
 const folderOperations = {
     FOLDER_CLEAR,
@@ -14,7 +16,9 @@ const folderOperations = {
     FOLDER_SET_ROOT_ID,
     FOLDER_SELECT,
     FOLDER_ENTER,
-    FOLDER_BACK
+    FOLDER_BACK,
+    FOLDER_SELECT_CLEAR,
+    FOLDER_CHANGE_COLOR
 }
 
 export default folderOperations
