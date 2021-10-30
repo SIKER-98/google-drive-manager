@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {AppBar, Button, Grid, IconButton, makeStyles, Paper, TextField, Toolbar, Tooltip} from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from '@material-ui/icons/Refresh';
@@ -9,6 +9,9 @@ import {apiGetFolderChildren} from "../redux/thunk/getFolderChildren";
 import {apiFetchFolder} from "../redux/thunk/fetchFolder";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import folderActions from "../redux/actions/folderActions";
+import AddIcon from '@mui/icons-material/Add';
+import {apiPostCreateFolder} from "../redux/thunk/postCreateFolder";
+import AlertSnackbar from "../components/AlertSnackbar";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -42,9 +45,17 @@ const useStyles = makeStyles(theme => {
 })
 
 const MainPage = (props) => {
+    const [folderName, setFolderName] = useState('')
+    const [alert, setAlert] = useState('')
+    const [alertType, setAlertType] = useState('')
+    const [snack, setSnack] = useState(false)
+
     const classes = useStyles()
     const {folderState} = props
-    const {getAllFolders, getChildren, getFolderRootId, folderBack,folderSelectClear} = props
+    const {
+        getAllFolders, getChildren, getFolderRootId,
+        folderBack, folderSelectClear, createFolder
+    } = props
 
     useEffect(() => {
         getFolderRootId();
@@ -63,6 +74,26 @@ const MainPage = (props) => {
         } else {
             getChildren(folderState.rootFolderId)
         }
+    }
+
+    const handleFolderName = (event) => {
+        setFolderName(event.target.value)
+    }
+
+    const createFolderClick = () => {
+        createFolder({folderName, parents: [folderState.currentFolder]})
+
+        setAlert('Folder added')
+        setAlertType('info')
+        setSnack(true)
+    }
+
+    const reloadFolders = () => {
+        getChildren(folderState.currentFolder)
+
+        setAlert('Reloaded data')
+        setAlertType('info')
+        setSnack(true)
     }
 
     return (
@@ -94,15 +125,35 @@ const MainPage = (props) => {
                             />
                         </Grid>
                         <Grid item>
-                            <Button variant={'contained'} color={'primary'} className={classes.addUser}>
-                                Filter
-                            </Button>
+
                             {/*<ActionDialogSlide classes={classes}/>*/}
                             <Tooltip title={'Reload'}>
-                                <IconButton>
+                                <IconButton onClick={reloadFolders}>
                                     <RefreshIcon className={classes.block} color={'inherit'}/>
                                 </IconButton>
                             </Tooltip>
+                        </Grid>
+                    </Grid>
+                </Toolbar>
+            </AppBar>
+
+            <AppBar className={classes.searchBar} position={'sticky'} color={'inherit'} elevation={0}>
+                <Toolbar>
+                    <Grid container spacing={2} alignItems={'right'}>
+
+                        <Grid item>
+                            <TextField label="New folder name" variant="standard" onChange={handleFolderName}/>
+                            <IconButton disabled={folderName === ''}
+                                        onClick={createFolderClick}
+                            >
+                                <AddIcon/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs/>
+                        <Grid item>
+                            <Button variant={'contained'} color={'secondary'} className={classes.addUser}>
+                                Filter
+                            </Button>
                         </Grid>
                     </Grid>
                 </Toolbar>
@@ -113,6 +164,14 @@ const MainPage = (props) => {
                     <Element key={folder.id} folder={folder}/>
                 ))}
             </div>
+
+            {alert !== '' ?
+                <AlertSnackbar open={snack}
+                               setOpen={setSnack}
+                               alertType={alertType}
+                               alert={alert}
+                /> : null
+            }
         </Paper>
     )
 }
@@ -126,7 +185,8 @@ const mapDispatchToProps = dispatch => ({
     getChildren: (folderId) => dispatch(apiGetFolderChildren(folderId)),
     getFolderRootId: () => dispatch(apiGetFolderRootId()),
     folderBack: () => dispatch(folderActions.folderBack()),
-    folderSelectClear: () =>dispatch(folderActions.folderSelectClear())
+    folderSelectClear: () => dispatch(folderActions.folderSelectClear()),
+    createFolder: item => dispatch(apiPostCreateFolder(item))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainPage)

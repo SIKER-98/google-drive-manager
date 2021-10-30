@@ -7,15 +7,15 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 const AlertSnackbar = props => {
-    const [open, setOpen] = useState(props.open ? props.open : false)
+    // const [open, setOpen] = useState(props.open ? props.open : false)
     const {alertType = 'success', alert = ''} = props
 
     const handleClose = () => {
-        setOpen(false)
+        props.setOpen(false)
     }
 
     return (
-        <Snackbar open={open}
+        <Snackbar open={props.open}
                   autoHideDuration={2000}
                   onClose={handleClose}
                   anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}

@@ -59,10 +59,6 @@ const ChangeColorDialog = (props) => {
         setOpen(false)
     }
 
-    const handleSnackClose = () => {
-        setSnackOpen(false)
-    }
-
     const colorBoxClick = (newColor) => {
         if (newColor !== actualFolderColor) {
             putFolderChangeColor({folderId, newColor})
@@ -119,7 +115,8 @@ const ChangeColorDialog = (props) => {
             </Dialog>
 
             {alert !== '' ?
-                <AlertSnackbar open={true}
+                <AlertSnackbar open={snackOpen}
+                               setOpen={setSnackOpen}
                                alertType={alertType}
                                alert={alert}
                 /> : null
