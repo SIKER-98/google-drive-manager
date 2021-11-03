@@ -12,6 +12,8 @@ import folderActions from "../redux/actions/folderActions";
 import AddIcon from '@mui/icons-material/Add';
 import {apiPostCreateFolder} from "../redux/thunk/postCreateFolder";
 import AlertSnackbar from "../components/AlertSnackbar";
+import MoveDialog from "../components/MoveDialog";
+import {apiPutFolderMove} from "../redux/thunk/putFolderMove";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -54,7 +56,7 @@ const MainPage = (props) => {
     const {folderState} = props
     const {
         getAllFolders, getChildren, getFolderRootId,
-        folderBack, folderSelectClear, createFolder
+        folderBack, createFolder, folderSelectClear, folderMove
     } = props
 
     useEffect(() => {
@@ -94,6 +96,15 @@ const MainPage = (props) => {
         setAlert('Reloaded data')
         setAlertType('info')
         setSnack(true)
+    }
+
+    const pasteButtonClick = () => {
+        folderState.selectedFolder.forEach(item => {
+            folderMove({folder: item, destination: folderState.currentFolder})
+        })
+
+        folderSelectClear()
+        getChildren(folderState.currentFolder)
     }
 
     return (
@@ -139,7 +150,7 @@ const MainPage = (props) => {
 
             <AppBar className={classes.searchBar} position={'sticky'} color={'inherit'} elevation={0}>
                 <Toolbar>
-                    <Grid container spacing={2} alignItems={'right'}>
+                    <Grid container spacing={2} alignItems={'flex-end'}>
 
                         <Grid item>
                             <TextField label="New folder name" variant="standard" onChange={handleFolderName}/>
@@ -150,6 +161,14 @@ const MainPage = (props) => {
                             </IconButton>
                         </Grid>
                         <Grid item xs/>
+                        <Grid item>
+                            <Button variant={'contained'}
+                                    onClick={pasteButtonClick}
+                                    color={'secondary'}
+                                    className={classes.addUser}>
+                                Paste
+                            </Button>
+                        </Grid>
                         <Grid item>
                             <Button variant={'contained'} color={'secondary'} className={classes.addUser}>
                                 Filter
@@ -172,6 +191,13 @@ const MainPage = (props) => {
                                alert={alert}
                 /> : null
             }
+
+            <MoveDialog open={true}
+                        setOpen={() => {
+                            console.log('working')
+                        }}
+                        message={'Test'}
+            />
         </Paper>
     )
 }
@@ -185,8 +211,9 @@ const mapDispatchToProps = dispatch => ({
     getChildren: (folderId) => dispatch(apiGetFolderChildren(folderId)),
     getFolderRootId: () => dispatch(apiGetFolderRootId()),
     folderBack: () => dispatch(folderActions.folderBack()),
+    createFolder: item => dispatch(apiPostCreateFolder(item)),
     folderSelectClear: () => dispatch(folderActions.folderSelectClear()),
-    createFolder: item => dispatch(apiPostCreateFolder(item))
+    folderMove: item => dispatch(apiPutFolderMove(item))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainPage)

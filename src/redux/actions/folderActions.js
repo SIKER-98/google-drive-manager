@@ -16,9 +16,6 @@ const childrenClear = () => ({
     type: folderOperations.FOLDER_CLEAR_CHILDREN
 })
 
-const selectFolder = item => ({
-    type: folderOperations.FOLDER_SELECT, item
-})
 
 const folderEnter = item => ({
     type: folderOperations.FOLDER_ENTER, item
@@ -26,10 +23,6 @@ const folderEnter = item => ({
 
 const folderBack = () => ({
     type: folderOperations.FOLDER_BACK
-})
-
-const folderSelectClear = () => ({
-    type: folderOperations.FOLDER_SELECT_CLEAR
 })
 
 const folderChangeColor = item => ({
@@ -40,9 +33,38 @@ const folderDelete = item => ({
     type: folderOperations.FOLDER_DELETE, item
 })
 
+const folderChangeName = item => ({
+    type: folderOperations.FOLDER_SET_NAME, item
+})
+
+const folderSetPermission = item => ({
+    type: folderOperations.FOLDER_SET_PERMISSION, item
+})
+
+const folderMoveEnter = item => ({
+    type: folderOperations.FOLDER_MOVE_ENTER, item
+})
+
+const folderMoveBack = () => ({
+    type: folderOperations.FOLDER_MOVE_BACK
+})
+
+const selectFolder = item => ({
+    type: folderOperations.FOLDER_SELECT, item
+})
+
+const unselectFolder = item => ({
+    type: folderOperations.FOLDER_UNSELECT, item
+})
+
+const folderSelectClear = () => ({
+    type: folderOperations.FOLDER_SELECT_CLEAR
+})
+
 const folderActions = {
     clear, rootId, setChildren, childrenClear, selectFolder, folderEnter, folderBack, folderSelectClear,
-    folderChangeColor, folderDelete
+    folderChangeColor, folderDelete, folderChangeName, folderSetPermission, folderMoveEnter, folderMoveBack,
+    unselectFolder,
 }
 
 

@@ -8,7 +8,7 @@ import {
     DialogContentText,
     DialogTitle,
     makeStyles,
-    Slide,
+    Slide, TextField,
     Typography
 } from "@material-ui/core";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -17,6 +17,12 @@ import {apiDeleteFolder} from "../redux/thunk/deleteFolder";
 import {connect} from "react-redux";
 import {apiGetFolderChildren} from "../redux/thunk/getFolderChildren";
 import AlertSnackbar from "./AlertSnackbar";
+import CloseIcon from '@mui/icons-material/Close';
+import DoneIcon from '@mui/icons-material/Done';
+import {apiPutFolderChangeName} from "../redux/thunk/putFolderChangeName";
+import apiShareFolder from "../api/apiShareFolder";
+import folderActions from "../redux/actions/folderActions";
+
 
 const useStyles = makeStyles(theme => (
     {
@@ -34,13 +40,24 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const FolderDialog = (props) => {
     const [open, setOpen] = useState(false)
-    const [alert, setAlert] = useState('')
-    const [alertType, setAlertType] = useState('')
+    const [share, setShare] = useState(false)
+    const [alert, setAlert] = useState({
+        show: false,
+        message: '',
+        type: ''
+    })
 
+
+    const [edit, setEdit] = useState({
+        edit: false,
+        newName: ''
+    })
 
     const classes = useStyles()
     const {data} = props
-    const {deleteFolder, folderState} = props
+    const {
+        deleteFolder, folderState, editFolder, selectFolder,
+        changeFolderPermission, getFolderChildren} = props
 
 
     const handleClickOpen = () => {
@@ -48,7 +65,12 @@ const FolderDialog = (props) => {
     }
 
     const handleClose = () => {
+        setEdit({...edit, edit: false})
         setOpen(false)
+    }
+
+    const handleEditClick = () => {
+        setEdit({edit: true, newName: data.name})
     }
 
     const convertSize = (size) => {
@@ -99,7 +121,15 @@ const FolderDialog = (props) => {
                         <b>{key.toUpperCase()}</b>: {data[key] ? 'True' : 'False'}
                     </Typography>
                 )
-
+            if (key === 'permissions') {
+                let permission = data[key].find(folder => folder.type === 'anyone')
+                permission = permission ? permission.role : 'private'
+                return (
+                    <Typography key={key}>
+                        <b>{key.toUpperCase()}</b>: {permission}
+                    </Typography>
+                )
+            }
             return (
                 <Typography key={key}>
                     <b>{key.toUpperCase()}</b>: {data[key]}
@@ -112,12 +142,70 @@ const FolderDialog = (props) => {
         deleteFolder(data.id)
 
         if (folderState.currentFolderChildren.findIndex(child => child.id = data.id) >= 0) {
-            setAlert('Deleted folder')
-            setAlertType('success')
+            setAlert({
+                show: true,
+                message: 'Delete folder',
+                type: 'success'
+            })
         } else {
-            setAlert('Something went wrong')
-            setAlertType('error')
+            setAlert({
+                show: true,
+                message: 'Something went wrong',
+                type: 'error',
+            })
         }
+    }
+
+    const folderEdit = (ok) => {
+        if (ok) {
+            editFolder({folderId: data.id, newName: edit.newName})
+            setAlert({
+                show: true,
+                message: 'Changed folder name',
+                type: 'info'
+            })
+            setEdit({...edit, edit: false})
+        } else {
+            setEdit({...edit, edit: false})
+        }
+    }
+
+    const folderShareClick = async (role) => {
+        const response = await apiShareFolder(folderState.gdrive, {folderId: data.id, role})
+        // console.log(response.data.webViewLink)
+        getFolderChildren(folderState.currentFolder)
+
+        if (role !== 'private' && response.data?.webViewLink) {
+            await navigator.clipboard.writeText(response.data.webViewLink)
+            //     changeFolderPermission({folderId: data.id, role})
+            setAlert({
+                show: true,
+                message: `Folder shared, Link '${response.data.webViewLink}' COPIED`,
+                type: 'success'
+            })
+        } else if (role !== 'private') {
+            setAlert({
+                show: true,
+                message: `Something went wrong!`,
+                type: 'error'
+            })
+        } else {
+            //     changeFolderPermission({folderId: data.id, role})
+            setAlert({
+                show: true,
+                message: `Folder changed to private`,
+                type: 'success'
+            })
+        }
+    }
+
+    const moveClick = () => {
+        console.log('here',folderState.selectedFolder.findIndex(item => item.id === data.id))
+        if (folderState.selectedFolder.findIndex(item => item.id === data.id)<0) {
+            selectFolder(data)
+            console.log('here2')
+        }
+        handleClose()
     }
 
     return (
@@ -134,57 +222,99 @@ const FolderDialog = (props) => {
                 <DialogTitle id={'alert-dialog'}>
                     Folder info
                 </DialogTitle>
-                <>
-                    <DialogContent>
-                        <DialogContentText>
-                            {listFolderData(data)}
-                        </DialogContentText>
+                <DialogContent>
+                    <DialogContentText>
+                        {listFolderData(data)}
+                    </DialogContentText>
 
-                        {data.mimeType === 'application/vnd.google-apps.folder' &&
-                        <ChangeColorDialog
-                            actualFolderColor={data?.folderColorRgb}
-                            folderId={data.id}
-                        />
-                        }
-                        <Button onClick={handleClose}
+                    {data.mimeType === 'application/vnd.google-apps.folder' &&
+                    <ChangeColorDialog
+                        actualFolderColor={data?.folderColorRgb}
+                        folderId={data.id}
+                    />
+                    }
+                    <Button onClick={moveClick}
+                            fullWidth
+                            color={'primary'}
+                            variant={'outlined'}
+                            className={classes.dialogItem}
+                    >
+                        Move
+                    </Button>
+
+                    {/*edycja pliku*/}
+                    {edit.edit ?
+                        <Box>
+                            <TextField label="New name"
+                                       variant="standard"
+                                       value={edit.newName}
+                                       onChange={(event) => {
+                                           setEdit({...edit, newName: event.target.value})
+                                       }}
+                            />
+                            <IconButton onClick={() => folderEdit(true)}>
+                                <DoneIcon/>
+                            </IconButton>
+                            <IconButton onClick={() => folderEdit(false)}>
+                                <CloseIcon/>
+                            </IconButton>
+                        </Box>
+                        :
+                        <Button onClick={handleEditClick}
                                 fullWidth
-                                color={'primary'}
+                                color={'secondary'}
                                 variant={'outlined'}
-                                className={classes.dialogItem}
-                        >
-                            Move
-                        </Button>
-                        <Button onClick={handleClose}
-                                fullWidth
-                                color={'primary'}
-                                variant={'contained'}
                                 className={classes.dialogItem}
                         >
                             Edit
                         </Button>
-                        <Button onClick={handleClose}
-                                fullWidth
-                                color={'secondary'}
-                                variant={'outlined'}
-                                className={classes.dialogItem}
-                        >
-                            Share
-                        </Button>
-                        <Button onClick={folderDelete}
-                                fullWidth
+                    }
+
+                    {/*udostepnianie pliku*/}
+                    <Box>
+                        <Button onClick={() => folderShareClick('private')}
                                 color={'secondary'}
                                 variant={'contained'}
                                 className={classes.dialogItem}
+                                fullWidth
                         >
-                            Delete
+                            Private
                         </Button>
-                    </DialogContent>
-                </>
+                    </Box>
+                    <Box>
+                        <Button onClick={() => folderShareClick('reader')}
+                                color={'primary'}
+                                variant={'contained'}
+                                className={classes.dialogItem}
+                                style={{marginRight: '1%', width: '49%'}}
+                        >
+                            Reader
+                        </Button>
+                        <Button onClick={() => folderShareClick('writer')}
+                                color={'primary'}
+                                variant={'contained'}
+                                className={classes.dialogItem}
+                                style={{marginLeft: '1%', width: '49%'}}
+                        >
+                            Writer
+                        </Button>
+                    </Box>
 
-                {alert !== '' ?
-                    <AlertSnackbar open={true}
-                                   alertType={alertType}
-                                   alert={alert}
+                    <Button onClick={folderDelete}
+                            fullWidth
+                            color={'secondary'}
+                            variant={'contained'}
+                            className={classes.dialogItem}
+                    >
+                        Delete
+                    </Button>
+                </DialogContent>
+
+                {alert.show !== null ?
+                    <AlertSnackbar open={alert.show}
+                                   setOpen={() => setAlert({...alert, show: false})}
+                                   alertType={alert.type}
+                                   alert={alert.message}
                     /> : null
                 }
             </Dialog>
@@ -198,6 +328,10 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     deleteFolder: folderId => dispatch(apiDeleteFolder(folderId)),
+    editFolder: item => dispatch(apiPutFolderChangeName(item)),
+    changeFolderPermission: item => dispatch(folderActions.folderSetPermission(item)),
+    getFolderChildren: item => dispatch(apiGetFolderChildren(item)),
+    selectFolder: item => dispatch(folderActions.selectFolder(item))
 })
 
 

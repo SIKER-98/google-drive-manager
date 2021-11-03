@@ -46,14 +46,9 @@ const setFolderColor = (color) => {
 const Element = (props) => {
     const classes = useStyles()
     const {folder} = props
-    const {folderReducer, selectFolder, getFolderChildren, folderEnter} = props
+    const {folderReducer, getFolderChildren, folderEnter} = props
 
     const folderClick = () => {
-        // if (folderReducer.selectedFolder?.id !== folder.id) {
-        //     selectFolder(folder)
-        //     return
-        // }
-
         folderEnter(folder)
         getFolderChildren(folder.id)
     }
@@ -91,7 +86,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    selectFolder: (folder) => dispatch(folderActions.selectFolder(folder)),
     getFolderChildren: (folderId) => dispatch(apiGetFolderChildren(folderId)),
     folderEnter: (folder) => dispatch(folderActions.folderEnter(folder))
 })
