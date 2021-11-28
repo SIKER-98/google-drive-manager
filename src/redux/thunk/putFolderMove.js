@@ -3,7 +3,8 @@ import folderActions from "../actions/folderActions";
 
 export const apiPutFolderMove = ({folder, destination}) =>
     async (dispatch, getState, api) => {
-        const gdrive = getState().folderReducer.gdrive
+        // const gdrive = getState().folderReducer.gdrive
+        const gdrive = getState().driveReducer.selectedDrive
 
         await axios.put(api + `gdrive/${gdrive}/folder/parent`, {
             folderId: folder.id,

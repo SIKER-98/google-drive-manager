@@ -1,14 +1,16 @@
 import React from "react";
 import {Card, CardContent, CardHeader, makeStyles, Typography} from "@material-ui/core";
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import IconButton from '@material-ui/core/IconButton';
 import FolderIcon from "@material-ui/icons/Folder";
 import clsx from "clsx";
-import {pink} from "@material-ui/core/colors";
 import folderActions from "../redux/actions/folderActions";
 import {connect} from "react-redux";
 import {apiGetFolderChildren} from "../redux/thunk/getFolderChildren";
 import FolderDialog from "./FolderDialog";
+import FileIcon from "../functions/getFileIcon";
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import axios from "axios";
+
 
 const useStyles = makeStyles(theme => {
     return {
@@ -33,29 +35,29 @@ const useStyles = makeStyles(theme => {
     }
 })
 
-const setFolderColor = (color) => {
-    console.log(color)
-    return makeStyles(theme => ({
-        folderColor: {
-            color: color
-        }
-    }))
-}
-
 
 const Element = (props) => {
     const classes = useStyles()
     const {folder} = props
     const {folderReducer, getFolderChildren, folderEnter} = props
 
-    const folderClick = () => {
-        folderEnter(folder)
-        getFolderChildren(folder.id)
+    const folderClick = async () => {
+        if (!folder.mimeType.includes('folder'))
+            await openElement(folder.id)
+        else {
+            folderEnter(folder)
+            getFolderChildren(folder.id)
+        }
     }
 
     const fileNameReduction = (name) => (
         name.length < 20 ? name : name.substring(0, 20) + '...'
     )
+
+    const openElement = async (id) => {
+        const response = await axios.get(`http://localhost:8000/` + `gdrive/${folderReducer.gdrive}/file/publicURL/${id}`)
+        window.open(response.data.webViewLink, '_blank')
+    }
 
 
     return (
@@ -65,7 +67,10 @@ const Element = (props) => {
             <CardHeader
                 avatar={
                     <IconButton onClick={folderClick}>
-                        <FolderIcon className={classes.icon} style={{color: folder.folderColorRgb}}/>
+                        <FileIcon format={folder.mimeType} sx={{fontSize: 75, margin: 0}}
+                                  className={classes.icon}
+                                  style={{color: folder.folderColorRgb}}/>
+                        {/*<FolderIcon className={classes.icon} style={{color: folder.folderColorRgb}}/>*/}
                     </IconButton>
                 }
                 action={

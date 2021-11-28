@@ -4,7 +4,8 @@ import folderActions from "../actions/folderActions";
 
 export const apiGetFolderChildren = (folderId) =>
     async (dispatch, getState, api) => {
-        const gdrive = getState().folderReducer.gdrive
+        // const gdrive = getState().folderReducer.gdrive
+        const gdrive = getState().driveReducer.selectedDrive
         await axios.get(api + `gdrive/${gdrive}/folder/${folderId}`)
             .then(res => {
                 const children = res.data.data.fileList

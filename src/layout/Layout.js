@@ -26,6 +26,9 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import PhonelinkSetupIcon from '@material-ui/icons/PhonelinkSetup';
 import InboxIcon from '@material-ui/icons/Inbox';
 import clsx from "clsx";
+import DriveNav from "../components/DriveNav";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import {connect} from "react-redux";
 
 const drawerWidth = 240
 const useStyles = makeStyles(theme => {
@@ -162,7 +165,7 @@ const drives = [
 
 const Layout = (props) => {
     const classes = useStyles()
-
+    const {driveState} = props
 
     return (
         <div className={classes.root}>
@@ -180,7 +183,7 @@ const Layout = (props) => {
                     </ListItemIcon>
                     <ListItemText
                         classes={{primary: classes.itemPrimary}}>
-                        Main Page
+                        MainPage
                     </ListItemText>
                 </ListItem>
 
@@ -210,22 +213,27 @@ const Layout = (props) => {
                 <ListItem>
                     <ListItemText classes={{primary: classes.categoryHeaderPrimary}}>
                         Google Drives
+                        <IconButton>
+                            <RefreshIcon/>
+                        </IconButton>
                     </ListItemText>
                 </ListItem>
-                {drives.map(gdrive => (
-                    <ListItem key={gdrive.id}
-                              button
-                              className={classes.item}>
-                        <InboxIcon className={classes.itemIcon}/>
-                        <ListItemText variant="body2" color="white" classes={{primary: classes.itemPrimary}}>
-                            {textWrapper(gdrive.email, 12)}
-                        </ListItemText>
-
-                        <Typography variant="body2" color="white" classes={{primary: classes.itemPrimary}}>
-                            {gdrive.empty}/{gdrive.total}GB
-                        </Typography>
-                    </ListItem>
-                ))}
+                {/*{drives.map(gdrive => (*/}
+                {/*    // <ListItem key={gdrive.id}*/}
+                {/*    //           button*/}
+                {/*    //           className={classes.item}>*/}
+                {/*    //     <InboxIcon className={classes.itemIcon}/>*/}
+                {/*    //     <ListItemText variant="body2" color="white" classes={{primary: classes.itemPrimary}}>*/}
+                {/*    //         {textWrapper(gdrive.email, 12)}*/}
+                {/*    //     </ListItemText>*/}
+                {/*    //*/}
+                {/*    //     <Typography variant="body2" color="white" classes={{primary: classes.itemPrimary}}>*/}
+                {/*    //         {gdrive.empty}/{gdrive.total}GB*/}
+                {/*    //     </Typography>*/}
+                {/*    // </ListItem>*/}
+                {/*    />*/}
+                {/*))}*/}
+                <DriveNav/>
             </List>
 
 
@@ -236,7 +244,7 @@ const Layout = (props) => {
                     <Toolbar>
                         <Grid container spacing={1} alignItems={'center'}>
                             <Grid item>
-                                MAIN PAGE
+                                {driveState.selectedDrive}
                             </Grid>
                             <Grid item xs/>
                             <Grid item>
@@ -281,7 +289,11 @@ const Layout = (props) => {
     )
 }
 
-export default Layout
+const mapStateToProps = state => ({
+    driveState: state.driveReducer
+})
+
+export default connect(mapStateToProps, null)(Layout)
 
 function textWrapper(text, maxSize) {
     return text.length >= maxSize ? text.substring(0, maxSize) + '...' : text

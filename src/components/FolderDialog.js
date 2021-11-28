@@ -105,19 +105,19 @@ const FolderDialog = (props) => {
         return Object.keys(folder).map(key => {
             if (key === 'modifiedTime' || key === 'createdTime')
                 return (
-                    <Typography key={key}>
+                    <Typography key={key} component={'p'}>
                         <b>{key.toUpperCase()}</b>: {convertDate(data[key])}
                     </Typography>
                 )
             if (key === 'size')
                 return (
-                    <Typography key={key}>
+                    <Typography key={key} component={'p'}>
                         <b>{key.toUpperCase()}</b>: {convertSize(data[key])}
                     </Typography>
                 )
             if (key === 'trashed' || key === 'explicitlyTrashed')
                 return (
-                    <Typography key={key}>
+                    <Typography key={key} component={'p'}>
                         <b>{key.toUpperCase()}</b>: {data[key] ? 'True' : 'False'}
                     </Typography>
                 )
@@ -125,13 +125,13 @@ const FolderDialog = (props) => {
                 let permission = data[key].find(folder => folder.type === 'anyone')
                 permission = permission ? permission.role : 'private'
                 return (
-                    <Typography key={key}>
+                    <Typography key={key} component={'p'}>
                         <b>{key.toUpperCase()}</b>: {permission}
                     </Typography>
                 )
             }
             return (
-                <Typography key={key}>
+                <Typography key={key} component={'p'}>
                     <b>{key.toUpperCase()}</b>: {data[key]}
                 </Typography>
             )

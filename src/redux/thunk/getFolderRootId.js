@@ -4,7 +4,7 @@ import folderActions from "../actions/folderActions";
 
 export const apiGetFolderRootId = () =>
     async (dispatch, getState, api) => {
-        const gdrive = getState().folderReducer.gdrive
+        const gdrive = getState().driveReducer.selectedDrive
         await axios.get(api + `gdrive/${gdrive}/folder/root`)
             .then(res => {
                 const rootId = res.data.data.rootId

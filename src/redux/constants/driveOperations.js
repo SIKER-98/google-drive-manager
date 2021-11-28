@@ -1,0 +1,9 @@
+const CLEAR_DRIVE_LIST = 'CLEAR_DRIVE_LIST'
+const ADD_DRIVE = 'ADD_DRIVE'
+const SELECT_DRIVE = 'SELECT_DRIVE'
+
+export default {
+    CLEAR_DRIVE_LIST,
+    ADD_DRIVE,
+    SELECT_DRIVE
+}

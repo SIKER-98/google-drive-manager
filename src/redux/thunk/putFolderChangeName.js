@@ -4,7 +4,8 @@ import folderActions from "../actions/folderActions";
 
 export const apiPutFolderChangeName = ({folderId, newName}) =>
     async (dispatch, getState, api) => {
-        const gdrive = getState().folderReducer.gdrive
+        // const gdrive = getState().folderReducer.gdrive
+        const gdrive = getState().driveReducer.selectedDrive
         await axios.put(api + `gdrive/${gdrive}/folder/folderName`, {folderId, newName})
             .then(res => {
                 console.log('putFolderChangeName:', newName)

@@ -7,6 +7,7 @@ import Layout from "./layout/Layout";
 import MainPage from "./pages/MainPage";
 import {createTheme, ThemeProvider} from '@material-ui/core'
 import {brown, blueGrey} from '@material-ui/core/colors'
+import LoginPage from "./pages/LoginPage";
 
 const theme = createTheme({
     palette: {
@@ -24,7 +25,8 @@ function App() {
             <ThemeProvider theme={theme}>
                 <BrowserRouter>
                     <Layout>
-                        <MainPage/>
+                        {/*<MainPage/>*/}
+                        <LoginPage/>
                     </Layout>
                 </BrowserRouter>
             </ThemeProvider>

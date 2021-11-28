@@ -3,7 +3,8 @@ import folderActions from "../actions/folderActions";
 
 export const apiFetchFolder = () =>
     async (dispatch, getState, api) => {
-        const gdrive = getState().folderReducer.gdrive
+        // const gdrive = getState().folderReducer.gdrive
+        const gdrive = getState().driveReducer.selectedDrive
         console.log('gdrive', gdrive)
         await axios.get(api + `gdrive/${gdrive}/folder`)
             .then(res => {

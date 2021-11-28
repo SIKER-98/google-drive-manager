@@ -1,5 +1,16 @@
 import React, {useEffect, useState} from "react";
-import {AppBar, Button, Grid, IconButton, makeStyles, Paper, TextField, Toolbar, Tooltip} from "@material-ui/core";
+import {
+    AppBar, Box,
+    Button, CircularProgress,
+    Grid,
+    IconButton,
+    Input,
+    makeStyles,
+    Paper,
+    TextField,
+    Toolbar,
+    Tooltip, Typography
+} from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Element from "../components/Element";
@@ -14,6 +25,7 @@ import {apiPostCreateFolder} from "../redux/thunk/postCreateFolder";
 import AlertSnackbar from "../components/AlertSnackbar";
 import MoveDialog from "../components/MoveDialog";
 import {apiPutFolderMove} from "../redux/thunk/putFolderMove";
+import axios from "axios";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -42,6 +54,9 @@ const useStyles = makeStyles(theme => {
         },
         dialogItem: {
             marginTop: theme.spacing(1)
+        },
+        input: {
+            display: 'none'
         }
     }
 })
@@ -51,22 +66,29 @@ const MainPage = (props) => {
     const [alert, setAlert] = useState('')
     const [alertType, setAlertType] = useState('')
     const [snack, setSnack] = useState(false)
+    const [progress, setProgress] = useState({
+        show: false,
+        progress: '0'
+    })
 
     const classes = useStyles()
     const {folderState} = props
     const {
         getAllFolders, getChildren, getFolderRootId,
-        folderBack, createFolder, folderSelectClear, folderMove
+        folderBack, createFolder, folderSelectClear, folderMove,
+        driveState
     } = props
 
     useEffect(() => {
-        getFolderRootId();
-    }, [])
+        if (driveState.selectedDrive != null)
+            getFolderRootId();
+    }, [driveState.selectedDrive])
 
     useEffect(() => {
         if (folderState.rootFolderId)
             getChildren(folderState.rootFolderId)
     }, [folderState.rootFolderId])
+
 
     const arrowBackClick = () => {
         folderBack()
@@ -105,6 +127,44 @@ const MainPage = (props) => {
 
         folderSelectClear()
         getChildren(folderState.currentFolder)
+    }
+
+    const handleFileSelect = ({target}) => {
+        if (target.files.length === 0)
+            return
+
+        const data = new FormData()
+        data.append('file', target.files[0])
+        const url = `http://localhost:8000/gdrive/${driveState.selectedDrive}/upload/${folderState.currentFolder}`
+        axios.post(url, data, {
+            onUploadProgress: ProgressEvent => {
+                setProgress({
+                    show: true,
+                    progress: (ProgressEvent.loaded / ProgressEvent.total * 100)
+                })
+            }
+        })
+            .then(res => {
+                setProgress({
+                    show: false,
+                    progress: 0
+                })
+                setAlert('File uploaded')
+                setAlertType('success')
+                setSnack(true)
+                console.log(res)
+                getChildren(folderState.currentFolder)
+            })
+            .catch(e => {
+                setProgress({
+                    show: false,
+                    progress: 0
+                })
+                setAlert('File uploaded FAILED')
+                setAlertType('error')
+                setSnack(true)
+                console.log(e)
+            })
     }
 
     return (
@@ -161,10 +221,48 @@ const MainPage = (props) => {
                             </IconButton>
                         </Grid>
                         <Grid item xs/>
+
+                        {progress.show &&
+                        <Grid item>
+                            <Box sx={{position: 'relative', display: 'inline-flex'}}>
+                                <CircularProgress variant="determinate" value={progress.progress}/>
+                                <Box sx={{
+                                    top: 0,
+                                    left: 0,
+                                    bottom: 0,
+                                    right: 0,
+                                    position: 'absolute',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                                >
+                                    <Typography variant="caption" component="div" color="text.secondary">
+                                        {Math.round(progress.progress)}%
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Grid>
+                        }
+
+                        <Grid item>
+                            <label htmlFor={'upload-button'}>
+                                <Input multiple
+                                       type={'file'}
+                                       id={'upload-button'}
+                                       onChange={handleFileSelect}
+                                       className={classes.input}/>
+                                <Button color={'primary'} variant={'contained'} component={'span'}>
+                                    Upload
+                                </Button>
+                            </label>
+                        </Grid>
+
                         <Grid item>
                             <Button variant={'contained'}
                                     onClick={pasteButtonClick}
                                     color={'secondary'}
+                                    disabled={folderState.selectedFolder.length === 0}
                                     className={classes.addUser}>
                                 Paste
                             </Button>
@@ -204,6 +302,7 @@ const MainPage = (props) => {
 
 const mapStateToProps = state => ({
     folderState: state.folderReducer,
+    driveState: state.driveReducer,
 })
 
 const mapDispatchToProps = dispatch => ({

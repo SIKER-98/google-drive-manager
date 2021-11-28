@@ -3,7 +3,8 @@ import folderActions from "../actions/folderActions";
 
 export const apiDeleteFolder = (folderId) =>
     async (dispatch, getState, api) => {
-        const gdrive = getState().folderReducer.gdrive
+        // const gdrive = getState().folderReducer.gdrive
+        const gdrive = getState().driveReducer.selectedDrive
         await axios.delete(api + `gdrive/${gdrive}/folder/${folderId}`)
             .then(res => {
                 console.log(`deleteFolder: ${folderId}`)
