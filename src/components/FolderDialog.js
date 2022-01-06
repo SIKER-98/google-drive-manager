@@ -22,6 +22,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import {apiPutFolderChangeName} from "../redux/thunk/putFolderChangeName";
 import apiShareFolder from "../api/apiShareFolder";
 import folderActions from "../redux/actions/folderActions";
+import downloadFile from "../api/downloadFile";
 
 
 const useStyles = makeStyles(theme => (
@@ -57,7 +58,8 @@ const FolderDialog = (props) => {
     const {data} = props
     const {
         deleteFolder, folderState, editFolder, selectFolder,
-        changeFolderPermission, getFolderChildren} = props
+        changeFolderPermission, getFolderChildren
+    } = props
 
 
     const handleClickOpen = () => {
@@ -200,12 +202,17 @@ const FolderDialog = (props) => {
     }
 
     const moveClick = () => {
-        console.log('here',folderState.selectedFolder.findIndex(item => item.id === data.id))
-        if (folderState.selectedFolder.findIndex(item => item.id === data.id)<0) {
+        console.log('here', folderState.selectedFolder.findIndex(item => item.id === data.id))
+        if (folderState.selectedFolder.findIndex(item => item.id === data.id) < 0) {
             selectFolder(data)
             console.log('here2')
         }
         handleClose()
+    }
+
+    const downloadClick = async () => {
+        const res = downloadFile(props.driveState.selectedDrive, data.id, data.name)
+        console.log(res)
     }
 
     return (
@@ -241,6 +248,16 @@ const FolderDialog = (props) => {
                     >
                         Move
                     </Button>
+
+                    {data.mimeType!=='application/vnd.google-apps.folder' &&
+                        <Button onClick={downloadClick}
+                             fullWidth
+                             color={'primary'}
+                             variant={'contained'}
+                             className={classes.dialogItem}
+                    >
+                        Download
+                    </Button>}
 
                     {/*edycja pliku*/}
                     {edit.edit ?
@@ -324,6 +341,7 @@ const FolderDialog = (props) => {
 
 const mapStateToProps = state => ({
     folderState: state.folderReducer,
+    driveState: state.driveReducer
 })
 
 const mapDispatchToProps = dispatch => ({
