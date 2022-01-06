@@ -7,6 +7,7 @@ import {apiGetGoogleDrive} from "../redux/thunk/getGoogleDrive";
 import driveOperations from "../redux/constants/driveOperations";
 import driveActions from "../redux/actions/driveActions";
 import folderActions from "../redux/actions/folderActions";
+import {useHistory} from "react-router-dom";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -39,6 +40,7 @@ function textWrapper(text, maxSize) {
 
 const DriveNav = (props) => {
     const classes = useStyles()
+    const history = useHistory()
     const {driveReducer, getGoogleDrive, selectDrive, folderSelectClear} = props
 
     useEffect(() => {
@@ -49,25 +51,23 @@ const DriveNav = (props) => {
         selectDrive(gdrive)
         if (gdrive !== driveReducer.selectedDrive)
             folderSelectClear()
+
+        history.push('/main')
     }
 
     return (
-        driveReducer.gdriveList?.map((gdrive, index) =>
+        props.authState.email !== '' && driveReducer.gdriveList?.map((gdrive, index) =>
             <ListItem key={index}
                       button
+                      onClick={() => clickDrive(gdrive)}
                       className={classes.item}>
                 <InboxIcon className={classes.itemIcon}/>
                 <ListItemText variant="body2"
                               color="white"
                               classes={{primary: classes.itemPrimary}}
-                              onClick={() => clickDrive(gdrive)}
                 >
                     {textWrapper(gdrive, 17)}
                 </ListItemText>
-
-                {/*<Typography variant="body2" color="white" classes={{primary: classes.itemPrimary}}>*/}
-                {/*    {gdrive.empty}/{gdrive.total}GB*/}
-                {/*</Typography>*/}
             </ListItem>
         )
     )

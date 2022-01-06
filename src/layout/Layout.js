@@ -4,7 +4,6 @@ import {
     Divider,
     Drawer,
     Grid, IconButton,
-    Link,
     List,
     ListItem,
     ListItemIcon,
@@ -29,6 +28,14 @@ import clsx from "clsx";
 import DriveNav from "../components/DriveNav";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import {connect} from "react-redux";
+import {Link, useHistory} from "react-router-dom";
+import LoginIcon from '@mui/icons-material/Login';
+import {Login} from "@mui/icons-material";
+import AddModeratorIcon from '@mui/icons-material/AddModerator';
+import authOperations from "../redux/constants/authOperations";
+import authActions from "../redux/actions/authActions";
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import GoogleIcon from '@mui/icons-material/Google';
 
 const drawerWidth = 240
 const useStyles = makeStyles(theme => {
@@ -113,59 +120,17 @@ const useStyles = makeStyles(theme => {
         footer: {
             padding: theme.spacing(2),
             background: '#EAEFF1'
+        },
+        hyperlink: {
+            color: 'white',
+            textDecoration: 'none'
         }
     }
 })
 
-const categories = [
-    {
-        id: 'Develop',
-        children: [
-            {id: 'Authentication', icon: <PeopleIcon/>, active: true},
-            {id: 'Database', icon: <DnsRoundedIcon/>},
-            {id: 'Storage', icon: <PermMediaOutlinedIcon/>},
-            {id: 'Hosting', icon: <PublicIcon/>},
-            {id: 'Functions', icon: <SettingsEthernetIcon/>},
-            {id: 'ML Kit', icon: <SettingsInputComponentIcon/>},
-        ],
-    },
-    {
-        id: 'Quality',
-        children: [
-            {id: 'Analytics', icon: <SettingsIcon/>},
-            {id: 'Performance', icon: <TimerIcon/>},
-            {id: 'Test Lab', icon: <PhonelinkSetupIcon/>},
-        ],
-    },
-];
-
-const drives = [
-    {
-        id: '1',
-        email: 'test@1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        total: 23,
-        empty: 10,
-        trash: 2
-    },
-    {
-        id: 2,
-        email: 'test@2',
-        total: 50,
-        empty: 44,
-        trash: 3
-    },
-    {
-        id: '3',
-        email: 'test@3',
-        total: 10,
-        empty: 2,
-        trash: 3
-    },
-]
-
 const Layout = (props) => {
     const classes = useStyles()
-    const {driveState} = props
+    const {driveState, authState, logout} = props
 
     return (
         <div className={classes.root}>
@@ -175,40 +140,21 @@ const Layout = (props) => {
                     Drive Manager
                 </ListItem>
 
-                <ListItem button
-                          className={clsx(classes.item, classes.itemCategory)}
-                >
-                    <ListItemIcon className={classes.itemIcon}>
-                        <HomeIcon/>
-                    </ListItemIcon>
-                    <ListItemText
-                        classes={{primary: classes.itemPrimary}}>
-                        MainPage
-                    </ListItemText>
-                </ListItem>
+                <Link to={'/'}>
+                    <ListItem button
+                              className={clsx(classes.item, classes.itemCategory)}
+                    >
+                        <ListItemIcon className={classes.itemIcon}>
+                            <HomeIcon/>
+                        </ListItemIcon>
+                        <ListItemText
+                            classes={{primary: classes.itemPrimary}}>
+                            Main Page
+                        </ListItemText>
+                    </ListItem>
+                </Link>
 
-                {categories.map(({id, children}) => (
-                    <React.Fragment key={id}>
-                        <ListItem className={clsx(classes.categoryHeader, classes.categoryItem)}>
-                            <ListItemText classes={{primary: classes.categoryHeaderPrimary}}>
-                                {id}
-                            </ListItemText>
-                        </ListItem>
-
-                        {children.map(({id: childId, icon, active}) => (
-                            <ListItem key={childId}
-                                      button
-                                      className={clsx(classes.item, active && classes.itemActiveItem, classes.categoryItem)}>
-                                <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
-                                <ListItemText classes={{primary: classes.itemPrimary}}>
-                                    {childId}
-                                </ListItemText>
-                            </ListItem>
-                        ))}
-
-                        <Divider className={classes.divider}/>
-                    </React.Fragment>
-                ))}
+                <Functionality authState={authState} logout={logout}/>
 
                 <ListItem>
                     <ListItemText classes={{primary: classes.categoryHeaderPrimary}}>
@@ -218,22 +164,8 @@ const Layout = (props) => {
                         </IconButton>
                     </ListItemText>
                 </ListItem>
-                {/*{drives.map(gdrive => (*/}
-                {/*    // <ListItem key={gdrive.id}*/}
-                {/*    //           button*/}
-                {/*    //           className={classes.item}>*/}
-                {/*    //     <InboxIcon className={classes.itemIcon}/>*/}
-                {/*    //     <ListItemText variant="body2" color="white" classes={{primary: classes.itemPrimary}}>*/}
-                {/*    //         {textWrapper(gdrive.email, 12)}*/}
-                {/*    //     </ListItemText>*/}
-                {/*    //*/}
-                {/*    //     <Typography variant="body2" color="white" classes={{primary: classes.itemPrimary}}>*/}
-                {/*    //         {gdrive.empty}/{gdrive.total}GB*/}
-                {/*    //     </Typography>*/}
-                {/*    // </ListItem>*/}
-                {/*    />*/}
-                {/*))}*/}
-                <DriveNav/>
+
+                <DriveNav authState={authState}/>
             </List>
 
 
@@ -244,7 +176,7 @@ const Layout = (props) => {
                     <Toolbar>
                         <Grid container spacing={1} alignItems={'center'}>
                             <Grid item>
-                                {driveState.selectedDrive}
+                                {authState.email}
                             </Grid>
                             <Grid item xs/>
                             <Grid item>
@@ -289,11 +221,111 @@ const Layout = (props) => {
     )
 }
 
+const Functionality = (props) => {
+    const classes = useStyles()
+    let history = useHistory();
+
+    function logout() {
+        props.logout()
+        history.push('/')
+    }
+
+    return (
+        <>
+            <ListItem className={clsx(classes.categoryHeader, classes.categoryItem)}>
+                <ListItemText classes={{primary: classes.categoryHeaderPrimary}}>
+                    Authentication
+                </ListItemText>
+            </ListItem>
+
+            {
+                !props.authState.email &&
+                <>
+                    {/*logowanie*/}
+                    <Link to={'/login'} style={{textDecoration: 'none', color: 'white', display: 'float'}}>
+                        <ListItem button className={clsx(classes.item, classes.categoryItem)}>
+                            <ListItemIcon className={classes.itemIcon}>
+                                <LoginIcon/>
+                            </ListItemIcon>
+                            <ListItemText classes={{primary: classes.itemPrimary}}>
+                                Login
+                            </ListItemText>
+                        </ListItem>
+                    </Link>
+
+                    {/*rejestracja*/}
+                    <Link to={'/register'} style={{textDecoration: 'none', color: 'white', display: 'float'}}>
+                        <ListItem button className={clsx(classes.item, classes.categoryItem)}>
+                            <ListItemIcon className={classes.itemIcon}>
+                                <AddModeratorIcon/>
+                            </ListItemIcon>
+                            <ListItemText classes={{primary: classes.itemPrimary}}>
+                                Register
+                            </ListItemText>
+                        </ListItem>
+                    </Link>
+                </>
+            }
+
+            {
+                props.authState.email &&
+                <>
+                    {/*userInfo*/}
+                    <Link to={'/user'} style={{textDecoration: 'none', color: 'white', display: 'float'}}>
+                        <ListItem button className={clsx(classes.item, classes.categoryItem)}>
+                            <ListItemIcon className={classes.itemIcon}>
+                                <PersonIcon/>
+                            </ListItemIcon>
+
+                            <ListItemText classes={{primary: classes.itemPrimary}}>
+                                User info
+                            </ListItemText>
+
+                        </ListItem>
+                    </Link>
+
+                    {/*logout*/}
+                    <ListItem button className={clsx(classes.item, classes.categoryItem)} onClick={() => logout()}>
+                        <ListItemIcon className={classes.itemIcon}>
+                            <ExitToAppIcon/>
+                        </ListItemIcon>
+
+                        <ListItemText classes={{primary: classes.itemPrimary}}>
+                            Logout
+                        </ListItemText>
+
+                    </ListItem>
+
+                    {/*addNewGoogleDrive*/}
+                    <Link to={'/addGoogle'} style={{textDecoration: 'none', color: 'white', display: 'float'}}>
+                        <ListItem button className={clsx(classes.item, classes.categoryItem)}>
+                            <ListItemIcon className={classes.itemIcon}>
+                                <GoogleIcon/>
+                            </ListItemIcon>
+
+                            <ListItemText classes={{primary: classes.itemPrimary}}>
+                                Add new Gdrive
+                            </ListItemText>
+
+                        </ListItem>
+                    </Link>
+                </>
+            }
+        </>
+    )
+}
+
+
 const mapStateToProps = state => ({
-    driveState: state.driveReducer
+    driveState: state.driveReducer,
+    authState: state.authReducer,
 })
 
-export default connect(mapStateToProps, null)(Layout)
+const mapDispatchToProps = dispatch => ({
+    logout: () => dispatch(authActions.clear())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Layout)
 
 function textWrapper(text, maxSize) {
     return text.length >= maxSize ? text.substring(0, maxSize) + '...' : text

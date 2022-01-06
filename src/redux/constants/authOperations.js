@@ -1,0 +1,11 @@
+const SET_TOKEN = 'SET_TOKEN'
+const CLEAR_TOKEN = 'CLEAR_TOKEN'
+const SET_MESSAGE = 'SET_MESSAGE'
+const CLEAR_MESSAGE = 'CLEAR_MESSAGE'
+
+export default {
+    SET_TOKEN,
+    CLEAR_TOKEN,
+    SET_MESSAGE,
+    CLEAR_MESSAGE
+}
